@@ -12,12 +12,36 @@ var audio = {
   audio_separator: {loaded: false, src: params.audio_separator}
 };
 
-function init_trial() {
+async function init_trial() {
   disable_buttons();
   init_audio_context();
-  setTimeout(function() {
-    load_all_audio(play_chord_sequences);
+  setTimeout(async function() {
+    await load_all_audio();
+    let can_play = check_can_play();
+    if (can_play) {
+      play_chord_sequences();
+    } else {
+      show_play_button();
+    }
   }, params.trial_wait * 1000);
+}
+
+function check_can_play() {
+  return context.state == "running"
+}
+
+function get_play_button() {
+  return document.getElementById("play-button")
+}
+
+function show_play_button() {
+  let btn = get_play_button();
+  btn.style.visibility = "visible";
+}
+
+function hide_play_button() {
+  let btn = get_play_button();
+  btn.style.visibility = "hidden";
 }
 
 function init_audio_context() {
@@ -40,37 +64,25 @@ function enable_buttons() {
   $( "[id^=chord_btn]" ).prop('disabled', false);
 }
 
-function load_all_audio(on_complete) {
+async function load_all_audio(on_complete) {
   var ids = Object.keys(audio);
-
-  function check_audio_loaded() {
-    for (let i = 0; i < ids.length; i ++) {
-      if (!audio[ids[i]].loaded) {
-        return false;
-      }
-    }
-    console.log("All audio loaded.");
-    on_complete();
-    return true;
-  }
-
-  for (let i = 0; i < ids.length; i ++) {
-    load_audio(ids[i], check_audio_loaded);
-  }
+  await Promise.all(ids.map(load_audio));
 }
 
-function load_audio(id, on_complete) {
-  var request = new XMLHttpRequest();
-  request.open('GET', audio[id].src, true);
-  request.responseType = 'arraybuffer';
-  request.onload = function() {
-    context.decodeAudioData(request.response, function(buffer) {
-      audio[id].buffer = buffer;
-      audio[id].loaded = true;
-      on_complete();
-    });
-  };
-  request.send();
+async function load_audio(id, on_complete) {
+  await new Promise(resolve => {
+      var request = new XMLHttpRequest();
+      request.open('GET', audio[id].src, true);
+      request.responseType = 'arraybuffer';
+      request.onload = function() {
+        context.decodeAudioData(request.response, function(buffer) {
+          audio[id].buffer = buffer;
+          audio[id].loaded = true;
+          resolve();
+        });
+      };
+      request.send();
+  });
 }
 
 function play_chord_sequences() {
