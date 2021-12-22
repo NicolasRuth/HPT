@@ -32,6 +32,12 @@ HPT_item <- function(audio_first,
                       margin-left:25%;margin-right:25%;margin-bottom:1em"),
     shiny::tags$style(".highlight { background-color: #b0e8f7 !important; color: black !important;}"),
     shiny::tags$script(sprintf("var params = %s;", jsonlite::toJSON(params, auto_unbox = TRUE))),
+    shiny::p(
+      shiny::tags$strong("Click here to play"),
+      id = "play-button",
+      style = "visibility: hidden",
+      onclick = "play_chord_sequences(); hide_play_button();"
+    ),
     shiny::includeScript(system.file("js/hpt-trial.js", package = "HPT"))
     # shiny::actionButton(inputId = "playaudio",
     #                     label = "Play audio",
@@ -45,6 +51,12 @@ HPT_item <- function(audio_first,
                       margin-left:25%;margin-right:25%;margin-bottom:1em"),
     shiny::tags$style(".highlight { background-color: #b0e8f7 !important; color: black !important;}"),
     shiny::tags$script(sprintf("var params = %s;", jsonlite::toJSON(params, auto_unbox = TRUE))),
+    shiny::p(
+      shiny::tags$strong("Click here to play"),
+      id = "play-button",
+      style = "visibility: hidden",
+      onclick = "play_chord_sequences(); hide_play_button();"
+    ),
     shiny::includeScript(system.file("js/hpt-trial.js", package = "HPT"))
     # shiny::actionButton(inputId = "playaudio",
     #                     label = "Play audio",
